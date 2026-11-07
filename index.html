@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Для Дианочки 💖</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(135deg, #ffdde1, #ee9ca7, #a18cd1, #fbc2eb);
+    background-size: 400% 400%;
+    animation: gradientMove 12s ease infinite;
+    overflow: hidden;
+    padding: 20px;
+    perspective: 1500px;
+  }
+
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ===== Сцена с перелистыванием ===== */
+  .scene {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    min-height: 560px;
+    z-index: 2;
+  }
+
+  .page {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1),
+                opacity 0.9s ease;
+    backface-visibility: hidden;
+  }
+
+  .page.front { transform: rotateY(0deg); opacity: 1; }
+  .page.back  { transform: rotateY(90deg); opacity: 0; pointer-events: none; }
+
+  .scene.flipped .front { transform: rotateY(-90deg); opacity: 0; pointer-events: none; }
+  .scene.flipped .back  { transform: rotateY(0deg); opacity: 1; pointer-events: auto; }
+
+  .card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    padding: 50px 40px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(200, 50, 120, 0.35);
+    border: 3px solid rgba(255, 255, 255, 0.9);
+  }
+
+  .front .card {
+    animation: cardIn 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  h1 {
+    font-size: 2.6em;
+    background: linear-gradient(90deg, #e91e63, #9c27b0, #ff5722);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .subtitle {
+    font-size: 1.1em;
+    color: #ad1457;
+    margin-bottom: 28px;
+    letter-spacing: 1px;
+  }
+
+  .text {
+    font-size: 1.25em;
+    line-height: 1.9;
+    color: #4a148c;
+  }
+
+  .text p { margin-bottom: 16px; }
+
+  .word {
+    font-weight: bold;
+    color: #d81b60;
+    position: relative;
+    display: inline-block;
+    transition: transform 0.3s;
+  }
+
+  .word:hover {
+    transform: scale(1.2) rotate(-3deg);
+    color: #8e24aa;
+  }
+
+  /* ===== Секретная кнопка-сердечко ===== */
+  .secret-heart {
+    margin-top: 26px;
+    font-size: 2.4em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s, filter 0.3s;
+    animation: heartbeat 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(233, 30, 99, 0.6));
+    position: relative;
+  }
+
+  .secret-heart:hover {
+    transform: scale(1.3);
+    filter: drop-shadow(0 0 16px rgba(233, 30, 99, 0.9));
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.15); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+  }
+
+  .hint {
+    display: block;
+    font-size: 0.8em;
+    color: #ad1457;
+    margin-top: 6px;
+    opacity: 0.7;
+    letter-spacing: 1px;
+  }
+
+  .signature {
+    margin-top: 30px;
+    font-style: italic;
+    color: #880e4f;
+    font-size: 1.05em;
+  }
+
+  /* ===== Секретная страница ===== */
+  .back .card {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(255, 228, 241, 0.92));
+    box-shadow: 0 20px 70px rgba(156, 39, 176, 0.45);
+    border-color: rgba(255, 255, 255, 0.95);
+  }
+
+  .secret-title {
+    font-size: 2.2em;
+    background: linear-gradient(90deg, #e91e63, #ff9800, #9c27b0, #e91e63);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 3s linear infinite;
+    margin-bottom: 8px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+
+  .secret-sub {
+    font-size: 1em;
+    color: #ad1457;
+    margin-bottom: 22px;
+    letter-spacing: 1px;
+  }
+
+  /* ===== Фото на секретной странице ===== */
+  .photo-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 22px;
+  }
+
+  .secret-photo {
+    width: 170px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid #fff;
+    box-shadow: 0 10px 30px rgba(233, 30, 99, 0.45);
+    animation: photoIn 0.8s ease 0.2s both;
+  }
+
+  @keyframes photoIn {
+    from { opacity: 0; transform: scale(0.7) rotate(-8deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  .compliments {
+    list-style: none;
+    text-align: left;
+    max-width: 430px;
+    margin: 0 auto;
+    font-size: 1.12em;
+    line-height: 1.7;
+    color: #4a148c;
+  }
+
+  .compliments li {
+    padding: 6px 0 6px 34px;
+    position: relative;
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideIn 0.5s ease forwards;
+  }
+
+  .compliments li::before {
+    content: '💖';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    font-size: 0.85em;
+  }
+
+  .compliments li:nth-child(1)  { animation-delay: 0.35s; }
+  .compliments li:nth-child(2)  { animation-delay: 0.50s; }
+  .compliments li:nth-child(3)  { animation-delay: 0.65s; }
+  .compliments li:nth-child(4)  { animation-delay: 0.80s; }
+  .compliments li:nth-child(5)  { animation-delay: 0.95s; }
+  .compliments li:nth-child(6)  { animation-delay: 1.10s; }
+  .compliments li:nth-child(7)  { animation-delay: 1.25s; }
+  .compliments li:nth-child(8)  { animation-delay: 1.40s; }
+  .compliments li:nth-child(9)  { animation-delay: 1.55s; }
+  .compliments li:nth-child(10) { animation-delay: 1.70s; }
+
+  @keyframes slideIn {
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .word-big {
+    font-weight: bold;
+    color: #d81b60;
+    font-size: 1.05em;
+  }
+
+  .back-btn {
+    margin-top: 26px;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(90deg, #e91e63, #9c27b0);
+    color: #fff;
+    font-size: 1em;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(233, 30, 99, 0.4);
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+
+  .back-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 28px rgba(233, 30, 99, 0.6);
+  }
+
+  /* ===== ТРИ СТИКЕРА С СЕРДЕЧКОМ СБОКУ ===== */
+  .stickers {
+    position: fixed;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  .sticker {
+    width: 74px;
+    height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    background: #fff;
+    border-radius: 50%;
+    border: 4px solid #ffd1e3;
+    box-shadow: 0 8px 22px rgba(200, 50, 120, 0.35);
+    animation: stickerFloat 4s ease-in-out infinite;
+    user-select: none;
+  }
+
+  /* Каждый стикер — свой поворот и своя задержка */
+  .sticker:nth-child(1) { transform: rotate(-10deg); animation-delay: 0s; }
+  .sticker:nth-child(2) { transform: rotate(8deg);   animation-delay: 0.6s; }
+  .sticker:nth-child(3) { transform: rotate(-6deg);  animation-delay: 1.2s; }
+
+  @keyframes stickerFloat {
+    0%, 100% { translate: 0 0;   }
+    50%      { translate: 0 -14px; }
+  }
+
+  /* На узких экранах — стикеры в ряд снизу */
+  @media (max-width: 760px) {
+    .stickers {
+      right: auto;
+      top: auto;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      flex-direction: row;
+      gap: 14px;
+    }
+    .sticker { width: 56px; height: 56px; font-size: 26px; }
+  }
+
+  /* ===== Плавающие сердечки ===== */
+  .heart {
+    position: fixed;
+    bottom: -50px;
+    font-size: 24px;
+    animation: floatUp linear infinite;
+    opacity: 0.8;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.9; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+  }
+
+  @media (max-width: 520px) {
+    .card { padding: 36px 22px; }
+    h1 { font-size: 2em; }
+    .secret-title { font-size: 1.7em; }
+    .text, .compliments { font-size: 1.05em; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== ТРИ СТИКЕРА С СЕРДЕЧКОМ (СБОКУ) ===== -->
+<div class="stickers" aria-hidden="true">
+  <div class="sticker">💗</div>
+  <div class="sticker">❤️</div>
+  <div class="sticker">💖</div>
+</div>
+
+<div class="scene" id="scene">
+
+  <!-- ===== СТРАНИЦА 1 ===== -->
+  <div class="page front">
+    <div class="card">
+      <h1>Для Дианочки 💌</h1>
+      <div class="subtitle">просто так, без повода 🎀</div>
+
+      <div class="text">
+        <p>
+          <span class="word">Диана</span>, эта страничка — только для тебя!
+          Не на день рождения, а просто чтобы напомнить, какая ты классная.
+        </p>
+        <p>
+          Ты — настоящее <span class="word">чудо</span> ✨,
+          хоть иногда и та ещё <span class="word">злючка</span> 😤,
+          но зато самая любимая <span class="word">пусечка</span> на свете 🐾.
+        </p>
+        <p>
+          <span class="word">Дианочка</span>, пусть каждый твой день
+          будет таким же ярким, как эта страничка! 💐
+        </p>
+      </div>
+
+      <button class="secret-heart" id="secretHeart" aria-label="Секрет">❤️</button>
+      <span class="hint">нажми на сердечко 👆</span>
+
+      <div class="signature">С любовью и улыбкой — твой сайт-поздравление 💝</div>
+    </div>
+  </div>
+
+  <!-- ===== СТРАНИЦА 2 (СЕКРЕТНАЯ) ===== -->
+  <div class="page back">
+    <div class="card">
+      <h2 class="secret-title">Ты — самая-самая! 👑</h2>
+      <div class="secret-sub">секретная страничка для Дианочки 🤫</div>
+
+      <!-- Фото: замените diana.jpg на своё -->
+      <div class="photo-wrap">
+        <img src="diana.jpg" alt="Дианочка" class="secret-photo"
+             onerror="this.style.display='none'">
+      </div>
+
+      <ul class="compliments">
+        <li><span class="word-big">Самая красивая</span> — с этим даже спорить бесполезно 💃</li>
+        <li><span class="word-big">Самая лучшая</span> — по всем параметрам и без исключений 🏆</li>
+        <li><span class="word-big">Самая милая</span> — даже когда злишься 😤💕</li>
+        <li><span class="word-big">Самая умная</span> — голова на все сто 🧠✨</li>
+        <li><span class="word-big">Самая добрая</span> — хоть иногда и прячешь это 🥰</li>
+        <li><span class="word-big">Самая весёлая</span> — с тобой никогда не скучно 😄</li>
+        <li><span class="word-big">Самая обаятельная</span> — улыбка, что оружие массового поражения 😍</li>
+        <li><span class="word-big">Самая искренняя</span> — настоящая, без фильтров 💎</li>
+        <li><span class="word-big">Самая любимая</span> — просто потому что ты — это ты 💖</li>
+        <li><span class="word-big">Самая-самая</span> — короче, лучше тебя нет! 🌟</li>
+      </ul>
+
+      <button class="back-btn" id="backBtn">← Назад к поздравлению</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const scene = document.getElementById('scene');
+  const heartBtn = document.getElementById('secretHeart');
+  const backBtn = document.getElementById('backBtn');
+
+  heartBtn.addEventListener('click', () => {
+    scene.classList.add('flipped');
+    burstHearts(heartBtn);
+  });
+
+  backBtn.addEventListener('click', () => {
+    scene.classList.remove('flipped');
+  });
+
+  /* ===== Плавающие сердечки ===== */
+  const hearts = ['💖', '💕', '💗', '💓', '❤️', '💝', '🌸', '✨'];
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.fontSize = (16 + Math.random() * 24) + 'px';
+    const duration = 6 + Math.random() * 6;
+    heart.style.animationDuration = duration + 's';
+    heart.style.animationDelay = Math.random() * 3 + 's';
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), (duration + 3) * 1000);
+  }
+  setInterval(createHeart, 500);
+  for (let i = 0; i < 10; i++) setTimeout(createHeart, i * 300);
+
+  /* ===== Взрыв сердечек при клике ===== */
+  function burstHearts(anchor) {
+    const rect = anchor.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const emojis = ['💖', '💕', '💗', '✨', '💝', '🌟', '❤️'];
+
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      p.style.position = 'fixed';
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.fontSize = (14 + Math.random() * 20) + 'px';
+      p.style.pointerEvents = 'none';
+      p.style.zIndex = '9999';
+      p.style.transition = 'transform 0.9s ease-out, opacity 0.9s ease-out';
+      document.body.appendChild(p);
+
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 70 + Math.random() * 140;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist;
+
+      requestAnimationFrame(() => {
+        p.style.transform = `translate(${dx}px, ${dy}px) rotate(${Math.random() * 360}deg) scale(0.3)`;
+        p.style.opacity = '0';
+      });
+
+      setTimeout(() => p.remove(), 1000);
+    }
+  }
+</script>
+
+</body>
+</html>
