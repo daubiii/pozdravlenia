@@ -12,53 +12,64 @@
   .screen {
     position: absolute; inset: 0; display: flex; flex-direction: column; 
     align-items: center; justify-content: center; opacity: 0; visibility: hidden;
-    transition: opacity 0.05s linear, visibility 0.05s;
+    transition: opacity 0.1s linear, visibility 0.1s;
   }
   .screen.active { opacity: 1; visibility: visible; }
 
-  /* Эффект старого монитора (CRT) */
+  /* Эффект старого монитора (виньетка) */
   .crt::after {
     content: ""; position: absolute; inset: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    background-size: 100% 2px, 3px 100%; pointer-events: none; z-index: 999;
+    box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+    pointer-events: none; z-index: 999;
   }
 
   /* ================= ЭКРАН 1: ТЕРМИНАЛ ================= */
-  #screen1 { background: #050505; color: #ccc; z-index: 10; }
+  #screen1 { background: #000; color: #fff; z-index: 10; align-items: flex-start; justify-content: flex-start; padding: 40px; }
+  
   .errors {
-    position: absolute; top: 40px; left: 40px;
-    font-size: 13px; line-height: 1.4; opacity: 0.9;
+    font-size: 14px; line-height: 1.1; white-space: pre-wrap; 
+    color: #fff; max-width: 60%; margin-bottom: 50px;
   }
   .errors span { color: #555; }
+  .cursor {
+    display: inline-block; width: 8px; height: 15px; background: #fff;
+    animation: blink 1s step-end infinite; vertical-align: bottom;
+  }
+
+  /* Центральный блок */
+  .center-block {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center;
+  }
   .ascii-eye {
-    font-size: 18px; font-weight: bold; line-height: 1.1; text-align: center; color: #fff;
-    margin-bottom: 25px; animation: glitchText 0.15s infinite;
-    text-shadow: 2px 0 #f00, -2px 0 #0ff;
+    font-size: 24px; font-weight: bold; line-height: 1; color: #fff;
+    letter-spacing: 2px; margin-bottom: 30px;
   }
   .text-noticed {
-    font-size: 24px; letter-spacing: 8px; color: #fff; font-weight: bold;
-    animation: glitchText 0.25s infinite; text-shadow: 0 0 10px #fff;
+    font-size: 22px; letter-spacing: 12px; color: #fff; font-family: 'Arial', sans-serif;
+    font-weight: bold; text-transform: uppercase;
   }
 
   /* ================= ЭКРАН 2: КРАСНЫЙ ================= */
-  #screen2 { background: #400; z-index: 20; }
+  #screen2 { background: #4a0000; z-index: 20; }
   .ascii-skull {
-    font-size: 16px; line-height: 1; white-space: pre; color: #fdd;
-    animation: pulseRed 0.3s infinite alternate;
-    text-shadow: 0 0 20px #f00, 0 0 50px #f00;
+    font-size: 14px; line-height: 1.1; white-space: pre; color: #e0e0e0;
+    text-shadow: 0 0 10px #000;
+    font-family: 'Consolas', monospace;
   }
-  /* Скан-линии как на старых мониторах */
+  /* Скан-линии */
   #screen2::before {
     content: ""; position: absolute; inset: 0;
-    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.3) 0px, rgba(0,0,0,0.3) 2px, transparent 2px, transparent 4px);
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.4) 0px, rgba(0,0,0,0.4) 2px, transparent 2px, transparent 4px);
     pointer-events: none;
   }
 
   /* ================= ЭКРАН 3: BSOD ================= */
   #screen3 { background: #0078d7; color: #fff; z-index: 30; align-items: flex-start; padding: 10vh 15vw; }
-  .bsod-content { font-size: 18px; line-height: 1.4; font-family: 'Segoe UI', sans-serif; }
-  .bsod-content .face { font-size: 80px; margin-bottom: 20px; }
-  .bsod-content p { margin-bottom: 15px; }
+  .bsod-content { font-size: 20px; line-height: 1.4; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  .bsod-content .face { font-size: 100px; font-weight: 300; margin-bottom: 20px; }
+  .bsod-content p { margin-bottom: 20px; }
+  .percent { font-weight: bold; }
 
   /* ================= ЭКРАН 4: КЛАССИЧЕСКИЙ СИНИЙ ЭКРАН ================= */
   #screen4 { background: #0000aa; z-index: 40; color: #fff; }
@@ -67,9 +78,9 @@
     background: #c0c0c0; border: 2px solid;
     border-color: #fff #000 #000 #fff;
     box-shadow: 2px 2px 0 #000;
-    width: 700px; display: flex; flex-direction: column;
-    margin-bottom: 20px; position: relative;
-    font-family: 'Tahoma', sans-serif; color: #000;
+    width: 720px; display: flex; flex-direction: column;
+    margin-bottom: 15px; position: relative;
+    font-family: 'Tahoma', 'Segoe UI', sans-serif; color: #000;
   }
   
   .win-title {
@@ -86,31 +97,19 @@
   .win-body { padding: 20px; text-align: center; }
   .win-body.final-body { padding: 30px; background: #0000aa; color: #fff; }
   
-  .txt-red { color: #ff0000; font-weight: bold; font-size: 22px; margin: 5px 0; }
+  .txt-red { color: #ff0000; font-weight: bold; font-size: 22px; margin: 5px 0; font-family: 'Courier New', monospace; }
   .txt-white { font-family: 'Times New Roman', serif; font-size: 16px; line-height: 1.6; }
-  .input-box { border: 1px solid #000; padding: 4px; width: 250px; margin-top: 15px; outline: none; }
+  .input-box { border: 1px solid #000; padding: 4px; width: 250px; margin-top: 15px; outline: none; font-size: 16px; }
   
   /* Подвал */
-  .win-footer { width: 700px; font-family: 'Times New Roman', serif; }
+  .win-footer { width: 720px; font-family: 'Times New Roman', serif; }
   .win-footer .win-body { display: flex; justify-content: space-between; align-items: center; text-align: left; font-size: 14px; padding: 10px 15px; }
   .win-btn {
     background: #c0c0c0; border: 2px solid; border-color: #fff #000 #000 #fff;
     padding: 4px 20px; font-family: 'Tahoma', sans-serif; font-size: 13px; cursor: default;
   }
 
-  /* ================= АНИМАЦИИ ================= */
-  @keyframes glitchText {
-    0% { transform: translate(0); }
-    20% { transform: translate(-3px, 2px); }
-    40% { transform: translate(3px, -1px); }
-    60% { transform: translate(-1px, -2px); }
-    80% { transform: translate(2px, 3px); }
-    100% { transform: translate(0); }
-  }
-  @keyframes pulseRed {
-    from { opacity: 0.8; transform: scale(1); }
-    to { opacity: 1; transform: scale(1.02); }
-  }
+  @keyframes blink { 50% { opacity: 0; } }
 </style>
 </head>
 <body>
@@ -118,28 +117,49 @@
   <!-- ЭКРАН 1: ТЕРМИНАЛ -->
   <div class="screen active crt" id="screen1">
     <div class="errors" id="error-log"></div>
-    <div class="ascii-eye">
-      &nbsp;&nbsp;.-----.<br>
-      &nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
-      |&nbsp;&nbsp;O&nbsp;&nbsp;&nbsp;|<br>
-      &nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/<br>
-      &nbsp;&nbsp;'-----'
+    
+    <div class="center-block">
+      <div class="ascii-eye">
+        &nbsp;&nbsp;.-----.<br>
+        &nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+        |&nbsp;&nbsp;(&nbsp;)&nbsp;&nbsp;|<br>
+        &nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/<br>
+        &nbsp;&nbsp;'-----'
+      </div>
+      <div class="text-noticed">ВАС ЗАМЕТИЛИ</div>
     </div>
-    <div class="text-noticed">ВАС ЗАМЕТИЛИ</div>
   </div>
 
-  <!-- ЭКРАН 2: КРАСНЫЙ -->
+  <!-- ЭКРАН 2: КРАСНЫЙ (Прорисованный череп) -->
   <div class="screen" id="screen2">
     <div class="ascii-skull">
-       .-""-.<br>
-      / .--. \<br>
-      | |  | |<br>
-      | |  | |<br>
-      \ \__/ /<br>
-       `-..-'   /<br>
-              /<br>
-             /<br>
-            /<br>
+                    .-""""""-.
+                  .'          '.
+                 /   O      O   \
+                :                :
+                |                |
+                :    .------.    :
+                 \  '        '  /
+                  '.          .'
+                    '-......-'
+                   /    ||    \
+                  /     ||     \
+                 |      ||      |
+                 |      ||      |
+                 \      ||      /
+                  \     ||     /
+                   '.   ||   .'
+                     '-.||.-'
+                        ||
+                        ||
+                       /||\
+                      / || \
+                     /  ||  \
+                    /   ||   \
+                   (____||____)
+                        ||
+                       _||_
+                      (____)
     </div>
   </div>
 
@@ -148,7 +168,7 @@
     <div class="bsod-content">
       <div class="face">:(</div>
       <p>На вашем ПК возникла проблема, и его необходимо перезагрузить. Мы собираем некоторые сведения об ошибке, после чего выполним перезагрузку.</p>
-      <p>0% завершено</p>
+      <p class="percent" id="bsod-percent">0% завершено</p>
       <p>Для получения дополнительных сведений об этой проблеме и возможных способах ее решения посетите веб-сайт: https://www.windows.com/stopcode</p>
       <p>Код остановки: CRITICAL_PROCESS_DIED</p>
     </div>
@@ -169,7 +189,7 @@
       </div>
     </div>
 
-    <!-- Окно 2 (Точная копия скрина) -->
+    <!-- Окно 2 (Копия скрина) -->
     <div class="win-window">
       <div class="win-title">
         <span>Windows заблокирован</span>
@@ -208,108 +228,101 @@
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
   }
 
-  // Системный писк (короткий, высокий)
   function playBeep() {
     if(!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'square';
     osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.05);
   }
 
-  // Тревожный гудок (низкий, нарастающий)
   function playWarning() {
     if(!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(200, audioCtx.currentTime + 1.5);
+    osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 2);
     gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 1.5);
-    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 2);
+    gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 2);
+    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2.5);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 2.5);
   }
 
-  // Звук сбоя (BSOD)
   function playCrash() {
     if(!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 1);
+    osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.8);
     gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 1);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.8);
   }
 
-  // Разблокировка аудио по клику
-  document.addEventListener('click', () => {
-    initAudio();
-  }, { once: true });
+  document.addEventListener('click', () => initAudio(), { once: true });
 
-  // ================= ЛОГИКА АНИМАЦИИ =================
-  const errLog = document.getElementById('error-log');
-  const errors = ['0x03527737', '0x000677B7', '0x03B5F593', '0x01447812', '0x0150974', '0x03873700', '0x0700882', '0x03803618'];
+  // ================= ЛОГИКА =================
   
-  // 1. Печатаем ошибки
-  let errIndex = 0;
-  const logInterval = setInterval(() => {
-    if (errIndex < errors.length) {
-      const line = document.createElement('div');
-      line.innerHTML = `Error: <span>${errors[errIndex]}</span>`;
-      errLog.appendChild(line);
-      if (errIndex % 3 === 0) playBeep(); 
-      errIndex++;
-    } else {
-      clearInterval(logInterval);
-    }
-  }, 350); 
+  // 1. МГНОВЕННЫЙ ВЫЛЕТ ОШИБОК
+  const errLog = document.getElementById('error-log');
+  const hexChars = '0123456789ABCDEF';
+  
+  // Генерируем 60 строк ошибок разом
+  let errText = '';
+  for (let i = 0; i < 60; i++) {
+    let code = '0x';
+    for (let j = 0; j < 8; j++) code += hexChars[Math.floor(Math.random() * 16)];
+    errText += `Error: ${code}\n`;
+    if (i % 15 === 0) errText += '\n'; // Разбиваем на блоки для читаемости
+  }
+  // Вставляем всё сразу
+  errLog.innerHTML = errText + '<span class="cursor"></span>';
+  playBeep(); // Один писк при вылете
 
   function switchScreen(hideId, showId) {
     document.getElementById(hideId).classList.remove('active');
     document.getElementById(showId).classList.add('active');
   }
 
-  // 2. Переход на красный экран (через 4.5 сек)
+  // 2. Переход на красный экран (через 4 сек)
   setTimeout(() => {
     playWarning();
     switchScreen('screen1', 'screen2');
-  }, 4500);
+  }, 4000);
 
-  // 3. Переход на BSOD (через 8 сек)
+  // 3. Переход на BSOD (через 7.5 сек) + анимация процентов
   setTimeout(() => {
     playCrash();
     switchScreen('screen2', 'screen3');
-  }, 8000);
+    
+    const percentEl = document.getElementById('bsod-percent');
+    let pc = 0;
+    const interval = setInterval(() => {
+      pc += Math.floor(Math.random() * 15) + 5;
+      if (pc > 100) pc = 100;
+      percentEl.textContent = `${pc}% завершено`;
+      if (pc === 100) clearInterval(interval);
+    }, 150);
+    
+  }, 7500);
 
   // 4. Переход на финальный экран (через 11 сек)
   setTimeout(() => {
-    playCrash(); // Повторный звук при появлении окон
+    playCrash();
     switchScreen('screen3', 'screen4');
-    
-    // Финальная серия писков
-    setTimeout(playBeep, 200);
-    setTimeout(playBeep, 500);
-    setTimeout(playBeep, 800);
+    setTimeout(playBeep, 300);
+    setTimeout(playBeep, 600);
   }, 11000);
 
 </script>
