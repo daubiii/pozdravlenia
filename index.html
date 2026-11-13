@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>System Error</title>
+<title>Windows Security</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; cursor: default; }
-  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Consolas', 'Courier New', monospace; }
+  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
 
   /* ================= ОБЩИЕ ЭФФЕКТЫ ================= */
   .screen {
@@ -16,52 +16,54 @@
   }
   .screen.active { opacity: 1; visibility: visible; }
 
-  /* Эффект старого монитора (виньетка) */
+  /* Легкая виньетка */
   .crt::after {
     content: ""; position: absolute; inset: 0;
-    box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+    box-shadow: inset 0 0 150px rgba(0,0,0,0.8);
     pointer-events: none; z-index: 999;
   }
 
   /* ================= ЭКРАН 1: ТЕРМИНАЛ ================= */
   #screen1 { background: #000; color: #fff; z-index: 10; align-items: flex-start; justify-content: flex-start; padding: 40px; }
   
-  .errors {
-    font-size: 14px; line-height: 1.1; white-space: pre-wrap; 
-    color: #fff; max-width: 60%; margin-bottom: 50px;
+  /* Контейнер для кода (вылетает моментально) */
+  .error-container {
+    font-size: 13px; line-height: 1.1; white-space: pre-wrap; 
+    color: #fff; max-width: 80%; margin-bottom: 50px;
+    text-align: left;
   }
-  .errors span { color: #555; }
+  .error-container span { color: #555; }
+  /* Красные строки как на скрине */
+  .red-text { color: #ff0000; font-weight: bold; }
+  
   .cursor {
-    display: inline-block; width: 8px; height: 15px; background: #fff;
-    animation: blink 1s step-end infinite; vertical-align: bottom;
+    display: inline-block; width: 8px; height: 14px; background: #fff;
+    animation: blink 1s step-end infinite; vertical-align: bottom; margin-top: 10px;
   }
 
-  /* Центральный блок */
+  /* Центральный блок (Глаз) */
   .center-block {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     display: flex; flex-direction: column; align-items: center;
   }
+  
+  /* ASCII-арт глаза, как на фото */
   .ascii-eye {
-    font-size: 24px; font-weight: bold; line-height: 1; color: #fff;
-    letter-spacing: 2px; margin-bottom: 30px;
+    font-size: 16px; line-height: 1; color: #fff;
+    margin-bottom: 20px; letter-spacing: 1px;
+    font-family: 'Courier New', monospace; font-weight: bold;
   }
+  
   .text-noticed {
-    font-size: 22px; letter-spacing: 12px; color: #fff; font-family: 'Arial', sans-serif;
-    font-weight: bold; text-transform: uppercase;
+    font-size: 28px; letter-spacing: 5px; color: #fff; font-family: 'Segoe UI', Arial, sans-serif;
+    font-weight: 400; text-transform: uppercase;
   }
 
   /* ================= ЭКРАН 2: КРАСНЫЙ ================= */
-  #screen2 { background: #4a0000; z-index: 20; }
+  #screen2 { background: #5a0000; z-index: 20; }
   .ascii-skull {
-    font-size: 14px; line-height: 1.1; white-space: pre; color: #e0e0e0;
-    text-shadow: 0 0 10px #000;
-    font-family: 'Consolas', monospace;
-  }
-  /* Скан-линии */
-  #screen2::before {
-    content: ""; position: absolute; inset: 0;
-    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.4) 0px, rgba(0,0,0,0.4) 2px, transparent 2px, transparent 4px);
-    pointer-events: none;
+    font-size: 14px; line-height: 1.1; white-space: pre; color: #fff;
+    font-family: 'Courier New', monospace;
   }
 
   /* ================= ЭКРАН 3: BSOD ================= */
@@ -71,7 +73,7 @@
   .bsod-content p { margin-bottom: 20px; }
   .percent { font-weight: bold; }
 
-  /* ================= ЭКРАН 4: КЛАССИЧЕСКИЙ СИНИЙ ЭКРАН ================= */
+  /* ================= ЭКРАН 4: ФИНАЛ ================= */
   #screen4 { background: #0000aa; z-index: 40; color: #fff; }
   
   .win-window {
@@ -101,7 +103,6 @@
   .txt-white { font-family: 'Times New Roman', serif; font-size: 16px; line-height: 1.6; }
   .input-box { border: 1px solid #000; padding: 4px; width: 250px; margin-top: 15px; outline: none; font-size: 16px; }
   
-  /* Подвал */
   .win-footer { width: 720px; font-family: 'Times New Roman', serif; }
   .win-footer .win-body { display: flex; justify-content: space-between; align-items: center; text-align: left; font-size: 14px; padding: 10px 15px; }
   .win-btn {
@@ -116,21 +117,24 @@
 
   <!-- ЭКРАН 1: ТЕРМИНАЛ -->
   <div class="screen active crt" id="screen1">
-    <div class="errors" id="error-log"></div>
+    <div class="error-container" id="error-log"></div>
     
     <div class="center-block">
+      <!-- Тот самый глаз с фото -->
       <div class="ascii-eye">
-        &nbsp;&nbsp;.-----.<br>
-        &nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
-        |&nbsp;&nbsp;(&nbsp;)&nbsp;&nbsp;|<br>
-        &nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/<br>
-        &nbsp;&nbsp;'-----'
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.-~~~-.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;.---.&nbsp;&nbsp;|<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;|&nbsp;&nbsp;O&nbsp;&nbsp;|&nbsp;&nbsp;|<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;'---'&nbsp;&nbsp;|<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'-...-'
       </div>
       <div class="text-noticed">ВАС ЗАМЕТИЛИ</div>
     </div>
   </div>
 
-  <!-- ЭКРАН 2: КРАСНЫЙ (Прорисованный череп) -->
+  <!-- ЭКРАН 2: КРАСНЫЙ -->
   <div class="screen" id="screen2">
     <div class="ascii-skull">
                     .-""""""-.
@@ -176,7 +180,6 @@
 
   <!-- ЭКРАН 4: ФИНАЛ -->
   <div class="screen" id="screen4">
-    <!-- Окно 1 -->
     <div class="win-window">
       <div class="win-title">
         <span>Внимание! Обнаружена угроза</span>
@@ -189,7 +192,6 @@
       </div>
     </div>
 
-    <!-- Окно 2 (Копия скрина) -->
     <div class="win-window">
       <div class="win-title">
         <span>Windows заблокирован</span>
@@ -211,7 +213,6 @@
       </div>
     </div>
 
-    <!-- Окно 3 -->
     <div class="win-window win-footer">
       <div class="win-body">
         <span>Попытка переустановить систему может привести к потере важной информации и нарушениям работы компьютера.</span>
@@ -236,7 +237,7 @@
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'square';
-    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+    osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
     gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
     osc.connect(gain); gain.connect(audioCtx.destination);
@@ -270,61 +271,70 @@
     osc.start(); osc.stop(audioCtx.currentTime + 0.8);
   }
 
-  document.addEventListener('click', () => initAudio(), { once: true });
-
-  // ================= ЛОГИКА =================
+  // --- ЛОГИКА СТАРТА ---
   
-  // 1. МГНОВЕННЫЙ ВЫЛЕТ ОШИБОК
-  const errLog = document.getElementById('error-log');
-  const hexChars = '0123456789ABCDEF';
-  
-  // Генерируем 60 строк ошибок разом
-  let errText = '';
-  for (let i = 0; i < 60; i++) {
-    let code = '0x';
-    for (let j = 0; j < 8; j++) code += hexChars[Math.floor(Math.random() * 16)];
-    errText += `Error: ${code}\n`;
-    if (i % 15 === 0) errText += '\n'; // Разбиваем на блоки для читаемости
-  }
-  // Вставляем всё сразу
-  errLog.innerHTML = errText + '<span class="cursor"></span>';
-  playBeep(); // Один писк при вылете
+  // Ошибки изначально скрыты, запускаются по клику
+  document.addEventListener('click', () => {
+    initAudio();
+    startPrank();
+  }, { once: true });
 
-  function switchScreen(hideId, showId) {
-    document.getElementById(hideId).classList.remove('active');
-    document.getElementById(showId).classList.add('active');
-  }
-
-  // 2. Переход на красный экран (через 4 сек)
-  setTimeout(() => {
-    playWarning();
-    switchScreen('screen1', 'screen2');
-  }, 4000);
-
-  // 3. Переход на BSOD (через 7.5 сек) + анимация процентов
-  setTimeout(() => {
-    playCrash();
-    switchScreen('screen2', 'screen3');
+  function startPrank() {
+    const errLog = document.getElementById('error-log');
     
-    const percentEl = document.getElementById('bsod-percent');
-    let pc = 0;
-    const interval = setInterval(() => {
-      pc += Math.floor(Math.random() * 15) + 5;
-      if (pc > 100) pc = 100;
-      percentEl.textContent = `${pc}% завершено`;
-      if (pc === 100) clearInterval(interval);
-    }, 150);
+    // 1. МОМЕНТАЛЬНЫЙ ВЫЛЕТ КОДА
+    // Генерируем 150 строк кода разом
+    let codeBlock = '';
+    for(let i=0; i<150; i++) {
+        let hex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6, '0');
+        codeBlock += `0x${hex} ... access denied\n`;
+        
+        // Вставляем красные строки как на скрине (примерно раз в 20 строк)
+        if (i % 20 === 0 && i !== 0) {
+            codeBlock += `<span class="red-text">ss 0x0424* is locked!</span>\n`;
+        }
+    }
     
-  }, 7500);
+    // Выводим всё в HTML моментально (без задержек)
+    // Добавляем мигающий курсор в конец
+    errLog.innerHTML = codeBlock + '<span class="cursor"></span>';
+    
+    // Один короткий писк
+    playBeep();
 
-  // 4. Переход на финальный экран (через 11 сек)
-  setTimeout(() => {
-    playCrash();
-    switchScreen('screen3', 'screen4');
-    setTimeout(playBeep, 300);
-    setTimeout(playBeep, 600);
-  }, 11000);
+    // 2. Переход на красный экран
+    setTimeout(() => {
+      playWarning();
+      document.getElementById('screen1').classList.remove('active');
+      document.getElementById('screen2').classList.add('active');
+    }, 4500);
 
+    // 3. Переход на BSOD
+    setTimeout(() => {
+      playCrash();
+      document.getElementById('screen2').classList.remove('active');
+      document.getElementById('screen3').classList.add('active');
+      
+      const percentEl = document.getElementById('bsod-percent');
+      let pc = 0;
+      const interval = setInterval(() => {
+        pc += Math.floor(Math.random() * 15) + 5;
+        if (pc > 100) pc = 100;
+        percentEl.textContent = `${pc}% завершено`;
+        if (pc === 100) clearInterval(interval);
+      }, 150);
+      
+    }, 8000);
+
+    // 4. Переход на финальное окно
+    setTimeout(() => {
+      playCrash();
+      document.getElementById('screen3').classList.remove('active');
+      document.getElementById('screen4').classList.add('active');
+      setTimeout(playBeep, 300);
+      setTimeout(playBeep, 600);
+    }, 11500);
+  }
 </script>
 </body>
 </html>
