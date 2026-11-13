@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows Security</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; cursor: default; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+
+    .screen {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+    }
+    .screen.active { opacity: 1; visibility: visible; }
+
+    /* ===== ЭКРАН 1 ===== */
+    #screen1 {
+      background: #000; color: #ccc;
+      align-items: flex-start; justify-content: flex-start;
+      padding: 24px 28px;
+    }
+    .error-container {
+      font-size: 12px; line-height: 1.2;
+      white-space: pre-wrap; color: #bbb;
+      max-width: 70%; max-height: 50vh; overflow: hidden;
+    }
+    .error-container .red { color: #ff2222; font-weight: bold; }
+    .error-container .dim { color: #555; }
+
+    .center-block {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .ascii-eye { font-size: 48px; line-height: 1; color: #fff; margin-bottom: 10px; }
+    .text-noticed {
+      font-size: 26px; letter-spacing: 5px; color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    .fake-cam {
+      position: absolute; top: 16px; right: 18px;
+      width: 100px; height: 70px; background: #111;
+      border: 1px solid #333;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-size: 11px; color: #777;
+    }
+    .fake-cam .icon { font-size: 20px; margin-bottom: 3px; }
+    .fake-cam .rec { color: #ff2222; font-weight: bold; font-size: 10px; animation: blink 0.9s step-end infinite; }
+
+    /* ===== ЭКРАН 2 ===== */
+    #screen2 { background: #5a0000; }
+    .ascii-skull {
+      font-size: 13px; line-height: 1.05; white-space: pre;
+      color: #eee; font-family: 'Courier New', monospace;
+    }
+
+    /* ===== ЭКРАН 3 ===== */
+    #screen3 {
+      background: #0078d7; color: #fff;
+      align-items: flex-start; padding: 8vh 12vw;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+    .bsod-content { max-width: 680px; }
+    .bsod-content .face { font-size: 100px; font-weight: 200; margin-bottom: 16px; }
+    .bsod-content p { margin-bottom: 16px; font-size: 18px; line-height: 1.4; }
+    .percent { font-weight: 600; }
+
+    /* ===== ЭКРАН 4 ===== */
+    #screen4 { background: #0000aa; font-family: Tahoma, 'Segoe UI', sans-serif; }
+
+    .win-window {
+      background: #c0c0c0;
+      border: 2px solid; border-color: #fff #000 #000 #fff;
+      box-shadow: 2px 2px 0 #000;
+      width: 620px; margin-bottom: 10px; color: #000;
+    }
+    .win-title {
+      background: linear-gradient(90deg, #000080, #1084d0);
+      color: #fff; font-size: 13px; font-weight: bold;
+      padding: 3px 6px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .win-title button {
+      background: #c0c0c0; border: 1px solid; border-color: #fff #000 #000 #fff;
+      width: 16px; height: 14px; font-size: 11px; font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .win-body { padding: 14px 18px; text-align: center; font-size: 14px; line-height: 1.45; }
+    .win-body.final { padding: 20px; background: #0000aa; color: #fff; }
+
+    .txt-red {
+      color: #ff2222; font-weight: bold; font-size: 22px;
+      margin: 6px 0; font-family: 'Courier New', monospace;
+    }
+    .input-box {
+      border: 1px solid #000; padding: 4px 8px; width: 210px;
+      margin-top: 10px; font-size: 15px; outline: none;
+    }
+    .win-footer { width: 620px; }
+    .win-footer .win-body {
+      display: flex; justify-content: space-between; align-items: center;
+      text-align: left; font-size: 13px; padding: 9px 12px;
+    }
+    .win-btn {
+      background: #c0c0c0; border: 2px solid; border-color: #fff #000 #000 #fff;
+      padding: 3px 16px; font-size: 13px;
+    }
+    .timer-line { font-family: 'Courier New', monospace; font-size: 14px; color: #ffcc00; margin-top: 10px; }
+    .files-line { font-family: 'Courier New', monospace; font-size: 13px; color: #aaa; margin-top: 4px; }
+
+    .warning-popup {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: #aa0000; color: #fff; border: 2px solid #ff4444;
+      padding: 16px 24px; font-size: 15px; font-weight: bold;
+      text-align: center; z-index: 100; display: none;
+      font-family: Tahoma, sans-serif;
+    }
+    .warning-popup.show { display: block; }
+
+    @keyframes blink { 50% { opacity: 0; } }
+    .cursor {
+      display: inline-block; width: 8px; height: 13px;
+      background: #ccc; animation: blink 1s step-end infinite;
+      vertical-align: bottom;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ЭКРАН 1 -->
+  <div class="screen active" id="screen1">
+    <div class="fake-cam">
+      <div class="icon">📷</div>
+      <div class="rec">● REC</div>
+    </div>
+    <div class="error-container" id="error-log"></div>
+    <div class="center-block">
+      <div class="ascii-eye">👁</div>
+      <div class="text-noticed">ВАС ЗАМЕТИЛИ</div>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 2 -->
+  <div class="screen" id="screen2">
+    <div class="ascii-skull">
+                    .-""""""-.
+                  .'          '.
+                 /   O      O   \
+                :                :
+                |                |
+                :    .------.    :
+                 \  '        '  /
+                  '.          .'
+                    '-......-'
+                   /    ||    \
+                  /     ||     \
+                 |      ||      |
+                 |      ||      |
+                 \      ||      /
+                  \     ||     /
+                   '.   ||   .'
+                     '-.||.-'
+                        ||
+                        ||
+                       /||\
+                      / || \
+                     /  ||  \
+                    /   ||   \
+                   (____||____)
+                        ||
+                       _||_
+                      (____)
+    </div>
+  </div>
+
+  <!-- ЭКРАН 3 -->
+  <div class="screen" id="screen3">
+    <div class="bsod-content">
+      <div class="face">:(</div>
+      <p>На вашем ПК возникла проблема, и его необходимо перезагрузить. Мы собираем некоторые сведения об ошибке, после чего выполним перезагрузку.</p>
+      <p class="percent" id="bsod-percent">0% завершено</p>
+      <p>Для получения дополнительных сведений об этой проблеме и возможных способах ее решения посетите веб-сайт: https://www.windows.com/stopcode</p>
+      <p>Код остановки: CRITICAL_PROCESS_DIED</p>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 4 -->
+  <div class="screen" id="screen4">
+    <div class="win-window">
+      <div class="win-title">
+        <span>Внимание! Обнаружена угроза</span>
+        <button>✕</button>
+      </div>
+      <div class="win-body">
+        Ваша система была заблокирована из-за подозрительной активности.<br><br>
+        <span style="color:#cc0000;font-weight:bold;font-size:15px;">Ваши файлы зашифрованы!</span><br>
+        Не пытайтесь перезагрузить компьютер.
+      </div>
+    </div>
+
+    <div class="win-window">
+      <div class="win-title">
+        <span>Windows заблокирован</span>
+        <button>✕</button>
+      </div>
+      <div class="win-body final">
+        <div style="font-size:15px;margin-bottom:10px;">Для разблокировки необходимо отправить смс с текстом</div>
+        <div class="txt-red">4123800256</div>
+        <div style="font-size:15px;margin:10px 0;">на номер</div>
+        <div class="txt-red">3649</div>
+        <div style="font-size:14px;margin-top:12px;">ввести полученный код:</div>
+        <input type="text" class="input-box" id="code-input" autocomplete="off" spellcheck="false">
+        <div class="timer-line" id="timer">До удаления файлов осталось: 04:59</div>
+        <div class="files-line" id="files-counter">Зашифровано: 1 247 файлов...</div>
+      </div>
+    </div>
+
+    <div class="win-window win-footer">
+      <div class="win-body">
+        <span style="max-width:400px;">Попытка переустановить систему может привести к потере важной информации и нарушениям работы компьютера.</span>
+        <button class="win-btn" id="activate-btn">Активация</button>
+      </div>
+    </div>
+
+    <div class="warning-popup" id="warning-popup">
+      Замечена и остановлена попытка<br>обойти систему!
+    </div>
+  </div>
+
+<script>
+  // ===== AUDIO =====
+  let audioCtx = null;
+  let audioReady = false;
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) { return false; }
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+    audioReady = true;
+    return true;
+  }
+
+  // Короткий системный бип
+  function beep(freq = 1000, dur = 0.04, vol = 0.04) {
+    if (!audioReady || !audioCtx) return;
+    const t = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + dur);
+  }
+
+  // Низкий тревожный гул
+  function warningTone() {
+    if (!audioReady || !audioCtx) return;
+    const t = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(55, t);
+    o.frequency.linearRampToValueAtTime(110, t + 2);
+    g.gain.setValueAtTime(0.03, t);
+    g.gain.linearRampToValueAtTime(0.07, t + 1.8);
+    g.gain.linearRampToValueAtTime(0.001, t + 2.4);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + 2.4);
+  }
+
+  // Резкий краш
+  function crashSound() {
+    if (!audioReady || !audioCtx) return;
+    const t = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(220, t);
+    o.frequency.exponentialRampToValueAtTime(30, t + 0.7);
+    g.gain.setValueAtTime(0.12, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + 0.7);
+  }
+
+  // Ошибка / отказ
+  function errorTone() {
+    if (!audioReady || !audioCtx) return;
+    const t = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(180, t);
+    o.frequency.setValueAtTime(120, t + 0.08);
+    g.gain.setValueAtTime(0.07, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + 0.25);
+  }
+
+  // ===== ЗАЩИТА =====
+  window.addEventListener('beforeunload', e => {
+    e.preventDefault();
+    e.returnValue = '';
+  });
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('selectstart', e => e.preventDefault());
+
+  // Попытка разблокировать звук при любом взаимодействии
+  ['click', 'keydown', 'touchstart'].forEach(ev => {
+    document.addEventListener(ev, () => ensureAudio(), { once: true, passive: true });
+  });
+
+  // ===== СТАРТ СРАЗУ =====
+  function startPrank() {
+    const errLog = document.getElementById('error-log');
+    const lines = [];
+
+    for (let i = 0; i < 160; i++) {
+      const hex = Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0');
+      const variants = [
+        `Error: 0x${hex}`,
+        `access denied 0x${hex}`,
+        `CRITICAL: 0x${hex}`,
+        `0x${hex} ... process locked`,
+        `fail 0x${hex} status=denied`
+      ];
+      let line = variants[Math.floor(Math.random() * variants.length)];
+      if (i % 17 === 0 && i > 0) {
+        line = `<span class="red">ss 0x0424* is locked!</span>`;
+      } else if (Math.random() > 0.65) {
+        line = `<span class="dim">${line}</span>`;
+      }
+      lines.push(line);
+    }
+
+    // Печатающая машинка
+    let idx = 0;
+    function typeNext() {
+      if (idx >= lines.length) {
+        errLog.innerHTML += '<span class="cursor"></span>';
+        return;
+      }
+      errLog.innerHTML += lines[idx] + '\n';
+      idx++;
+      if (idx % 8 === 0) beep(850 + Math.random() * 400, 0.025, 0.02);
+      setTimeout(typeNext, Math.random() * 10 + 5);
+    }
+    typeNext();
+    beep(1100, 0.05, 0.035);
+
+    // Красный экран
+    setTimeout(() => {
+      warningTone();
+      document.getElementById('screen1').classList.remove('active');
+      document.getElementById('screen2').classList.add('active');
+    }, 4800);
+
+    // BSOD
+    setTimeout(() => {
+      crashSound();
+      document.getElementById('screen2').classList.remove('active');
+      document.getElementById('screen3').classList.add('active');
+
+      const el = document.getElementById('bsod-percent');
+      let pc = 0;
+      const iv = setInterval(() => {
+        pc += Math.floor(Math.random() * 11) + 5;
+        if (pc >= 100) { pc = 100; clearInterval(iv); }
+        el.textContent = pc + '% завершено';
+      }, 130);
+    }, 8200);
+
+    // Финал
+    setTimeout(() => {
+      crashSound();
+      document.getElementById('screen3').classList.remove('active');
+      document.getElementById('screen4').classList.add('active');
+      setTimeout(() => beep(700, 0.07, 0.04), 200);
+      setTimeout(() => beep(500, 0.09, 0.04), 420);
+
+      // Таймер
+      let sec = 4 * 60 + 59;
+      const timerEl = document.getElementById('timer');
+      setInterval(() => {
+        if (sec > 0) sec--;
+        const m = String(Math.floor(sec / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        timerEl.textContent = 'До удаления файлов осталось: ' + m + ':' + s;
+      }, 1000);
+
+      // Счётчик файлов
+      let files = 1247;
+      const filesEl = document.getElementById('files-counter');
+      setInterval(() => {
+        files += Math.floor(Math.random() * 3) + 1;
+        filesEl.textContent = 'Зашифровано: ' + files.toLocaleString('ru-RU') + ' файлов...';
+      }, 850);
+    }, 11800);
+  }
+
+  // Запускаем сразу (визуал не ждёт клика)
+  startPrank();
+
+  // Предупреждение при взаимодействии
+  function showWarning() {
+    ensureAudio();
+    errorTone();
+    const p = document.getElementById('warning-popup');
+    p.classList.add('show');
+    setTimeout(() => p.classList.remove('show'), 1600);
+  }
+
+  document.getElementById('code-input').addEventListener('focus', showWarning);
+  document.getElementById('code-input').addEventListener('input', showWarning);
+  document.getElementById('activate-btn').addEventListener('click', showWarning);
+  document.querySelectorAll('.win-title button').forEach(b => b.addEventListener('click', showWarning));
+</script>
+</body>
+</html>
