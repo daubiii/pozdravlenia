@@ -2,117 +2,121 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Windows Locked</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Error</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; cursor: default; }
   html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Consolas', 'Courier New', monospace; }
 
+  /* ================= ОБЩИЕ ЭФФЕКТЫ ================= */
+  .screen {
+    position: absolute; inset: 0; display: flex; flex-direction: column; 
+    align-items: center; justify-content: center; opacity: 0; visibility: hidden;
+    transition: opacity 0.05s linear, visibility 0.05s;
+  }
+  .screen.active { opacity: 1; visibility: visible; }
+
+  /* Эффект старого монитора (CRT) */
+  .crt::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%; pointer-events: none; z-index: 999;
+  }
+
   /* ================= ЭКРАН 1: ТЕРМИНАЛ ================= */
-  #screen1 {
-    position: absolute; inset: 0; background: #000; color: #fff;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 10; animation: hideScreen 0.1s 4s forwards;
-  }
+  #screen1 { background: #050505; color: #ccc; z-index: 10; }
   .errors {
-    position: absolute; top: 30px; left: 30px;
-    font-size: 13px; color: #ccc; line-height: 1.3; opacity: 0.8;
-    white-space: pre-wrap;
+    position: absolute; top: 40px; left: 40px;
+    font-size: 13px; line-height: 1.4; opacity: 0.9;
   }
+  .errors span { color: #555; }
   .ascii-eye {
-    font-size: 16px; font-weight: bold; text-align: center; line-height: 1.1; color: #fff;
-    animation: glitchText 0.15s infinite; margin-bottom: 20px;
+    font-size: 18px; font-weight: bold; line-height: 1.1; text-align: center; color: #fff;
+    margin-bottom: 25px; animation: glitchText 0.15s infinite;
+    text-shadow: 2px 0 #f00, -2px 0 #0ff;
   }
   .text-noticed {
-    font-size: 20px; letter-spacing: 5px; color: #fff; animation: glitchText 0.2s infinite;
+    font-size: 24px; letter-spacing: 8px; color: #fff; font-weight: bold;
+    animation: glitchText 0.25s infinite; text-shadow: 0 0 10px #fff;
   }
 
   /* ================= ЭКРАН 2: КРАСНЫЙ ================= */
-  #screen2 {
-    position: absolute; inset: 0; background: #400; color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    z-index: 20; opacity: 0; animation: showScreen 0.1s 4s forwards, hideScreen 0.1s 7s forwards;
-  }
+  #screen2 { background: #400; z-index: 20; }
   .ascii-skull {
-    font-size: 14px; line-height: 1; white-space: pre; color: #fff;
-    animation: pulseRed 0.5s infinite alternate;
+    font-size: 16px; line-height: 1; white-space: pre; color: #fdd;
+    animation: pulseRed 0.3s infinite alternate;
+    text-shadow: 0 0 20px #f00, 0 0 50px #f00;
+  }
+  /* Скан-линии как на старых мониторах */
+  #screen2::before {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.3) 0px, rgba(0,0,0,0.3) 2px, transparent 2px, transparent 4px);
+    pointer-events: none;
   }
 
   /* ================= ЭКРАН 3: BSOD ================= */
-  #screen3 {
-    position: absolute; inset: 0; background: #0078d7; color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    z-index: 30; opacity: 0; animation: showScreen 0.1s 7s forwards;
-  }
-  .bsod-content { max-width: 800px; padding: 20px; font-size: 16px; line-height: 1.4; }
-  .bsod-content h2 { font-size: 40px; margin-bottom: 20px; font-weight: normal; }
+  #screen3 { background: #0078d7; color: #fff; z-index: 30; align-items: flex-start; padding: 10vh 15vw; }
+  .bsod-content { font-size: 18px; line-height: 1.4; font-family: 'Segoe UI', sans-serif; }
+  .bsod-content .face { font-size: 80px; margin-bottom: 20px; }
+  .bsod-content p { margin-bottom: 15px; }
 
-  /* ================= ЭКРАН 4: СИНИЕ ОКНА (ФИНАЛ) ================= */
-  #screen4 {
-    position: absolute; inset: 0; background: #0000aa; /* Классический синий фон ОС */
-    z-index: 40; display: none; flex-direction: column; align-items: center; justify-content: center;
-  }
-
-  /* Нативные окна в стиле Win 9x/2000 */
+  /* ================= ЭКРАН 4: КЛАССИЧЕСКИЙ СИНИЙ ЭКРАН ================= */
+  #screen4 { background: #0000aa; z-index: 40; color: #fff; }
+  
   .win-window {
     background: #c0c0c0; border: 2px solid;
     border-color: #fff #000 #000 #fff;
-    box-shadow: 1px 1px 0 #000;
-    width: 650px; display: flex; flex-direction: column;
-    margin-bottom: 20px;
+    box-shadow: 2px 2px 0 #000;
+    width: 700px; display: flex; flex-direction: column;
+    margin-bottom: 20px; position: relative;
+    font-family: 'Tahoma', sans-serif; color: #000;
   }
+  
   .win-title {
     background: linear-gradient(90deg, #000080, #1084d0);
-    color: #fff; font-family: sans-serif; font-size: 14px; font-weight: bold;
-    padding: 3px 5px; display: flex; justify-content: space-between; align-items: center;
+    color: #fff; font-size: 14px; font-weight: bold;
+    padding: 4px 8px; display: flex; justify-content: space-between; align-items: center;
   }
   .win-title button {
-    background: #c0c0c0; border: 1px solid #fff; border-color: #fff #000 #000 #fff;
-    font-family: sans-serif; font-size: 10px; font-weight: bold; padding: 0 4px; cursor: pointer;
+    background: #c0c0c0; border: 1px solid; border-color: #fff #000 #000 #fff;
+    font-size: 11px; font-weight: bold; width: 18px; height: 16px; cursor: default;
+    display: flex; align-items: center; justify-content: center;
   }
-  .win-body {
-    padding: 15px; font-family: 'Times New Roman', serif; color: #000; font-size: 15px;
-    text-align: center; line-height: 1.5;
-  }
-  .win-body span.red { color: #f00; font-weight: bold; }
-  .win-body input { border: 1px solid #000; padding: 3px; width: 200px; margin-top: 10px; }
-
-  /* Самое нижнее окно */
-  .win-footer { width: 650px; }
-  .win-footer .win-body { display: flex; justify-content: space-between; align-items: center; text-align: left; font-size: 13px; }
+  
+  .win-body { padding: 20px; text-align: center; }
+  .win-body.final-body { padding: 30px; background: #0000aa; color: #fff; }
+  
+  .txt-red { color: #ff0000; font-weight: bold; font-size: 22px; margin: 5px 0; }
+  .txt-white { font-family: 'Times New Roman', serif; font-size: 16px; line-height: 1.6; }
+  .input-box { border: 1px solid #000; padding: 4px; width: 250px; margin-top: 15px; outline: none; }
+  
+  /* Подвал */
+  .win-footer { width: 700px; font-family: 'Times New Roman', serif; }
+  .win-footer .win-body { display: flex; justify-content: space-between; align-items: center; text-align: left; font-size: 14px; padding: 10px 15px; }
   .win-btn {
     background: #c0c0c0; border: 2px solid; border-color: #fff #000 #000 #fff;
-    padding: 4px 15px; font-family: sans-serif; font-size: 14px; cursor: pointer;
-  }
-  .win-btn:active { border-color: #000 #fff #fff #000; }
-  
-  /* Красное предупреждение внутри синего экрана */
-  .red-warning {
-    background: #c00; color: #fff; font-family: 'Courier New', monospace;
-    padding: 20px; margin: 15px auto; text-align: center; border: 1px solid #f00;
-    width: 80%; font-size: 16px; font-weight: bold;
+    padding: 4px 20px; font-family: 'Tahoma', sans-serif; font-size: 13px; cursor: default;
   }
 
   /* ================= АНИМАЦИИ ================= */
-  @keyframes hideScreen { to { opacity: 0; visibility: hidden; } }
-  @keyframes showScreen { to { opacity: 1; visibility: visible; } }
   @keyframes glitchText {
-    0% { transform: translate(0); text-shadow: 0 0 0 #000; }
-    20% { transform: translate(-2px, 1px); text-shadow: 1px 0 0 #f00, -1px 0 0 #0ff; }
-    40% { transform: translate(2px, -1px); }
+    0% { transform: translate(0); }
+    20% { transform: translate(-3px, 2px); }
+    40% { transform: translate(3px, -1px); }
     60% { transform: translate(-1px, -2px); }
-    80% { transform: translate(1px, 2px); }
+    80% { transform: translate(2px, 3px); }
     100% { transform: translate(0); }
   }
   @keyframes pulseRed {
-    from { transform: scale(1); filter: drop-shadow(0 0 0px #f00); }
-    to { transform: scale(1.05); filter: drop-shadow(0 0 20px #f00); }
+    from { opacity: 0.8; transform: scale(1); }
+    to { opacity: 1; transform: scale(1.02); }
   }
 </style>
 </head>
 <body>
 
   <!-- ЭКРАН 1: ТЕРМИНАЛ -->
-  <div id="screen1">
+  <div class="screen active crt" id="screen1">
     <div class="errors" id="error-log"></div>
     <div class="ascii-eye">
       &nbsp;&nbsp;.-----.<br>
@@ -125,7 +129,7 @@
   </div>
 
   <!-- ЭКРАН 2: КРАСНЫЙ -->
-  <div id="screen2">
+  <div class="screen" id="screen2">
     <div class="ascii-skull">
        .-""-.<br>
       / .--. \<br>
@@ -140,54 +144,54 @@
   </div>
 
   <!-- ЭКРАН 3: BSOD -->
-  <div id="screen3">
+  <div class="screen" id="screen3">
     <div class="bsod-content">
-      <h2>:(</h2>
+      <div class="face">:(</div>
       <p>На вашем ПК возникла проблема, и его необходимо перезагрузить. Мы собираем некоторые сведения об ошибке, после чего выполним перезагрузку.</p>
-      <br>
       <p>0% завершено</p>
-      <br><br>
       <p>Для получения дополнительных сведений об этой проблеме и возможных способах ее решения посетите веб-сайт: https://www.windows.com/stopcode</p>
-      <br>
       <p>Код остановки: CRITICAL_PROCESS_DIED</p>
     </div>
   </div>
 
-  <!-- ЭКРАН 4: ФИНАЛ (КАК НА ФОТО) -->
-  <div id="screen4">
-    <!-- Верхнее окно с предупреждением -->
+  <!-- ЭКРАН 4: ФИНАЛ -->
+  <div class="screen" id="screen4">
+    <!-- Окно 1 -->
     <div class="win-window">
       <div class="win-title">
         <span>Внимание! Обнаружена угроза</span>
         <button>X</button>
       </div>
-      <div class="win-body">
-        Ваша система была заблокирована из-за подозрительной активности.<br>
-        Для восстановления доступа к файлам необходимо связаться с администратором.
-        <div class="red-warning">
-          Ваши файлы зашифрованы!<br>
-          Не пытайтесь перезагрузить компьютер.
-        </div>
+      <div class="win-body txt-white">
+        Ваша система была заблокирована из-за подозрительной активности.<br><br>
+        <span style="color:red; font-weight:bold;">Ваши файлы зашифрованы!</span><br>
+        Не пытайтесь перезагрузить компьютер.
       </div>
     </div>
 
-    <!-- Нижнее окно с СМС (Точная копия скрина) -->
+    <!-- Окно 2 (Точная копия скрина) -->
     <div class="win-window">
       <div class="win-title">
         <span>Windows заблокирован</span>
         <button>X</button>
       </div>
-      <div class="win-body" style="background:#0000aa; color:#fff; padding:30px;">
-        <p>Для разблокировки необходимо отправить смс с текстом</p>
-        <p class="red-warning" style="background:none; border:none; font-size:24px; color:#ff0000; padding:5px 0; width:100%;">4123800256</p>
-        <p>на номер</p>
-        <p class="red-warning" style="background:none; border:none; font-size:24px; color:#ff0000; padding:5px 0; width:100%;">3649</p>
-        <p>ввести полученный код:</p>
-        <input type="text" placeholder="">
+      <div class="win-body final-body">
+        <div style="font-family: 'Times New Roman', serif; font-size: 18px; margin-bottom: 15px;">
+          Для разблокировки необходимо отправить смс с текстом
+        </div>
+        <div class="txt-red">4123800256</div>
+        <div style="font-family: 'Times New Roman', serif; font-size: 18px; margin: 15px 0;">
+          на номер
+        </div>
+        <div class="txt-red">3649</div>
+        <div style="font-family: 'Times New Roman', serif; font-size: 18px; margin-top: 15px;">
+          ввести полученный код:
+        </div>
+        <input type="text" class="input-box" autocomplete="off">
       </div>
     </div>
 
-    <!-- Подвал -->
+    <!-- Окно 3 -->
     <div class="win-window win-footer">
       <div class="win-body">
         <span>Попытка переустановить систему может привести к потере важной информации и нарушениям работы компьютера.</span>
@@ -197,7 +201,7 @@
   </div>
 
 <script>
-  // --- ГЕНЕРАЦИЯ ЗВУКОВ ЧЕРЕЗ WEB AUDIO API ---
+  // ================= ЗВУКОВОЙ ДВИЖОК =================
   let audioCtx;
   
   function initAudio() {
@@ -209,97 +213,104 @@
     }
   }
 
-  // Звук "ошибки" (низкий гудок)
-  function playErrorBeep() {
-    initAudio();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.5);
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.5);
-  }
-
-  // Системный писк (короткий)
+  // Системный писк (короткий, высокий)
   function playBeep() {
-    initAudio();
+    if(!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'square';
-    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.1);
+    osc.stop(audioCtx.currentTime + 0.08);
   }
 
-  // Звук критической ошибки BSOD
-  function playBsodSound() {
-    initAudio();
+  // Тревожный гудок (низкий, нарастающий)
+  function playWarning() {
+    if(!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = 'triangle';
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(200, audioCtx.currentTime + 1.5);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 1.5);
+    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 2);
+  }
+
+  // Звук сбоя (BSOD)
+  function playCrash() {
+    if(!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 1);
-    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+    osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 1);
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start();
     osc.stop(audioCtx.currentTime + 1);
   }
 
-  // --- ЛОГИКА ТАЙМЕРОВ И ЭФФЕКТОВ ---
-
-  // Автозапуск звука при первом клике (браузеры блокируют звук без действия пользователя)
-  document.body.addEventListener('click', () => {
+  // Разблокировка аудио по клику
+  document.addEventListener('click', () => {
     initAudio();
   }, { once: true });
 
-  // 1. Генерация фейковых ошибок в терминале
-  const logContainer = document.getElementById('error-log');
+  // ================= ЛОГИКА АНИМАЦИИ =================
+  const errLog = document.getElementById('error-log');
   const errors = ['0x03527737', '0x000677B7', '0x03B5F593', '0x01447812', '0x0150974', '0x03873700', '0x0700882', '0x03803618'];
   
+  // 1. Печатаем ошибки
   let errIndex = 0;
   const logInterval = setInterval(() => {
     if (errIndex < errors.length) {
       const line = document.createElement('div');
-      line.innerHTML = `Error: <span style="color:#555;">${errors[errIndex]}</span>`;
-      logContainer.appendChild(line);
-      if (errIndex % 2 === 0) playBeep(); // Пикание при появлении
+      line.innerHTML = `Error: <span>${errors[errIndex]}</span>`;
+      errLog.appendChild(line);
+      if (errIndex % 3 === 0) playBeep(); 
       errIndex++;
     } else {
       clearInterval(logInterval);
     }
-  }, 300); // Каждые 300мс
+  }, 350); 
 
-  // 2. Переходы экранов (синхронизированы с CSS)
-  setTimeout(() => {
-    playErrorBeep();
-  }, 4000); // 4 секунды - переход на красный
+  function switchScreen(hideId, showId) {
+    document.getElementById(hideId).classList.remove('active');
+    document.getElementById(showId).classList.add('active');
+  }
 
+  // 2. Переход на красный экран (через 4.5 сек)
   setTimeout(() => {
-    playBsodSound(); // Звук ошибки при вылете в BSOD
-  }, 7000); // 7 секунд - переход на синий экран
+    playWarning();
+    switchScreen('screen1', 'screen2');
+  }, 4500);
 
+  // 3. Переход на BSOD (через 8 сек)
   setTimeout(() => {
-    // Прячем BSOD и показываем финальные окна
-    document.getElementById('screen3').style.display = 'none';
-    document.getElementById('screen4').style.display = 'flex';
+    playCrash();
+    switchScreen('screen2', 'screen3');
+  }, 8000);
+
+  // 4. Переход на финальный экран (через 11 сек)
+  setTimeout(() => {
+    playCrash(); // Повторный звук при появлении окон
+    switchScreen('screen3', 'screen4');
     
-    // Серия пиканий в конце
-    playBeep();
+    // Финальная серия писков
     setTimeout(playBeep, 200);
-    setTimeout(playBeep, 400);
-    setTimeout(playErrorBeep, 1000);
-  }, 9000); // 9 секунд - финальный экран блокировки
+    setTimeout(playBeep, 500);
+    setTimeout(playBeep, 800);
+  }, 11000);
 
 </script>
 </body>
